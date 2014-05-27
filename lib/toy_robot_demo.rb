@@ -137,7 +137,7 @@ class ToyRobotDemo
                     y = args[1]
                     f = args[2]
                     
-                    @robot.place(x,y,f)
+                    @robot.update_coordinates(x,y,f)
                 else
                     puts "Wrong number of arguments! Format: PLACE X,Y,F where X,Y are numbers and F is the direction the robot is facing."
                 end

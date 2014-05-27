@@ -19,12 +19,16 @@ class ToyRobot
         @table = table
     end
 
-    def place(x,y,f)
+    def update_coordinates(x,y,f)
         # Validate input and append error messages to 'err' variable
+        validatePosX = numeric?(x) && x.to_i >= 0 && x.to_i <= @table.width  - 1
+        validatePosY = numeric?(y) && y.to_i >= 0 && y.to_i <= @table.height - 1
+        validateDiretion = DIRECTIONS.include?(f.to_sym)
+
         err = ""
-        err << "Invalid X, must be a number between 0 - #{@table.width - 1}\n"  unless numeric?(x) and x.to_i >= 0 and x.to_i <= @table.width  - 1
-        err << "Invalid Y, must be a number between 0 - #{@table.height - 1}\n" unless numeric?(y) and y.to_i >= 0 and y.to_i <= @table.height - 1
-        err << "Invalid F, must be either NORTH, SOUTH, EAST or WEST\n"         unless DIRECTIONS.include?(f.to_sym)
+        err << "Invalid X, must be a number between 0 - #{@table.width - 1}\n"  unless validatePosX
+        err << "Invalid Y, must be a number between 0 - #{@table.height - 1}\n" unless validatePosY
+        err << "Invalid F, must be either NORTH, SOUTH, EAST or WEST\n" unless validateDiretion
         
         # If nothing was appended to the 'err' variable, we should be good to go!
         if err.empty?
@@ -40,10 +44,10 @@ class ToyRobot
         # Check if the toy robot has been placed on the table yet
         return unless placed?
 
-        if (@direction == :north and @y == @table.height - 1) or 
-           (@direction == :south and @y == 0) or
-           (@direction == :east and @x == @table.width - 1) or 
-           (@direction == :west and @x == 0)
+        if (@direction == :north and @y >= @table.height - 1) or 
+           (@direction == :south and @y <= 0) or
+           (@direction == :east and @x >= @table.width - 1) or 
+           (@direction == :west and @x <= 0)
             puts "** BZZT! This demo robot is expensive, you break it, you buy it!"
         else
             if @direction == :north

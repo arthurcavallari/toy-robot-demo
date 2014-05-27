@@ -19,11 +19,11 @@ describe ToyRobot do
         end
     end
 
-    describe "#place" do
+    describe "#update_coordinates" do
     # X
         it "prints an error message if the parameter X is greater than the table width" do
             output = capture_stdout do
-                @robot.place(5, 0, :north)
+                @robot.update_coordinates(5, 0, :north)
             end
 
             output.should eq "Invalid X, must be a number between 0 - #{@robot.table.width - 1}\n"
@@ -31,7 +31,7 @@ describe ToyRobot do
 
         it "prints an error message if the parameter X is negative" do
             output = capture_stdout do
-                @robot.place(-1, 0, :north)
+                @robot.update_coordinates(-1, 0, :north)
             end
 
             output.should eq "Invalid X, must be a number between 0 - #{@robot.table.width - 1}\n"
@@ -39,7 +39,7 @@ describe ToyRobot do
 
         it "prints an error message if the parameter X is not numeric" do
             output = capture_stdout do
-                @robot.place("four", 0, :north)
+                @robot.update_coordinates("four", 0, :north)
             end
 
             output.should eq "Invalid X, must be a number between 0 - #{@robot.table.width - 1}\n"
@@ -47,7 +47,7 @@ describe ToyRobot do
     # Y
         it "prints an error message if the parameter Y is greater than the table height" do
             output = capture_stdout do
-                @robot.place(0, 5, :north)
+                @robot.update_coordinates(0, 5, :north)
             end
 
             output.should eq "Invalid Y, must be a number between 0 - #{@robot.table.height - 1}\n"
@@ -55,7 +55,7 @@ describe ToyRobot do
 
         it "prints an error message if the parameter Y is negative" do
             output = capture_stdout do
-                @robot.place(0, -1, :north)
+                @robot.update_coordinates(0, -1, :north)
             end
 
             output.should eq "Invalid Y, must be a number between 0 - #{@robot.table.height - 1}\n"
@@ -63,7 +63,7 @@ describe ToyRobot do
 
         it "prints an error message if the parameter Y is not numeric" do
             output = capture_stdout do
-                @robot.place(0, "four", :north)
+                @robot.update_coordinates(0, "four", :north)
             end
 
             output.should eq "Invalid Y, must be a number between 0 - #{@robot.table.height - 1}\n"
@@ -71,14 +71,14 @@ describe ToyRobot do
     # F
         it "prints an error message if the parameter F is not part of the list of valid DIRECTIONS #{ToyRobot::DIRECTIONS}" do
             output = capture_stdout do
-                @robot.place(0, 0, :down)
+                @robot.update_coordinates(0, 0, :down)
             end
 
             output.should eq "Invalid F, must be either NORTH, SOUTH, EAST or WEST\n"
         end
 
         it "changes the robot's position when given valid coordinates" do
-            @robot.place(0, 0, :north)
+            @robot.update_coordinates(0, 0, :north)
             @robot.x.should eql 0
             @robot.y.should eql 0
             @robot.direction.should eql :north
@@ -96,7 +96,7 @@ describe ToyRobot do
 
         it "prints an message announcing the robot's coordinates" do
             output = capture_stdout do
-                @robot.place(0, 0, :north)
+                @robot.update_coordinates(0, 0, :north)
                 @robot.report
             end
 
@@ -115,7 +115,7 @@ describe ToyRobot do
 
         it "prints an error message when attempting move outside the table dimensions" do
             output = capture_stdout do
-                @robot.place 4,4,:north
+                @robot.update_coordinates(4, 4, :north)
                 @robot.move
             end
 
@@ -123,7 +123,7 @@ describe ToyRobot do
         end
 
         it "moves the robot 1 unit in the direction it is facing" do
-            @robot.place 0,0,:north
+            @robot.update_coordinates(0, 0, :north)
             @robot.move
             @robot.x.should eq 0
             @robot.y.should eq 1
@@ -141,7 +141,7 @@ describe ToyRobot do
         end
 
         it "rotates the robot 90 degrees anti-clockwise without changing the position of the robot" do
-            @robot.place 4,4,:north
+            @robot.update_coordinates(4, 4, :north)
             @robot.left
 
             @robot.x.should eq 4
@@ -161,7 +161,7 @@ describe ToyRobot do
         end
 
         it "rotates the robot 90 degrees clockwise without changing the position of the robot" do
-            @robot.place 4,4,:north
+            @robot.update_coordinates(4, 4, :north)
             @robot.right
             
             @robot.x.should eq 4
