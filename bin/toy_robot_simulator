@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+
+# Author:       Arthur Cavallari
+# GitHub:       http://github.com/arthurcavallari
+# LinkedIn:     http://linkedin.com/in/arthurcavallari
+
+require './lib/toy_robot_demo'
+require 'optparse'
+
+options = {:width => nil, :height => nil, :file => nil, :gfx => nil}
+
+parser = OptionParser.new do|opts|
+    opts.banner = "Usage: toy_robot_simulator [options]"
+    opts.on('-w', '--width width', 'Table width') do |width|
+        options[:width] = width;
+    end
+
+    opts.on('-h', '--height height', 'Table height') do |height|
+        options[:height] = height;
+    end
+
+
+    opts.on('-f', '--file filename', 'File with instructions - 1 per line') do |file|
+        options[:file] = file;
+    end
+
+    opts.on('-g', '--graphics', 'Enable graphical robot navigation mode') do |gfx|
+        options[:gfx] = gfx;
+    end
+
+    opts.on('', '--help', 'Displays Help') do
+        puts opts
+        exit
+    end
+end
+
+parser.parse!
+
+demo = ToyRobotDemo.new(options[:width], options[:height], options[:file], options[:gfx])
+demo.start

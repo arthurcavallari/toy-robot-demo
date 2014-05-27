@@ -2,10 +2,6 @@
 # GitHub:       http://github.com/arthurcavallari
 # LinkedIn:     http://linkedin.com/in/arthurcavallari
 
-# Usage: 
-#           Either you provide the width and height when running the script (e.g. ruby toy_robot_demo.rb -w 5 -h 5)
-#           or leave the arguments empty and follow the prompts
-
 require_relative 'table'
 require_relative 'toy_robot'
 require_relative 'helper_methods'
@@ -77,35 +73,34 @@ class ToyRobotDemo
         f = @robot.direction
         printf("%c", 14)
 
-        print '┌'
-        (w*2+3).times { print '─'  } #─
-        puts '┐'
+        print "\u250C".encode('utf-8') # top left corner
+        (w*2+3).times { print "\u2500".encode('utf-8')  } # horizontal line
+        puts "\u2510".encode('utf-8') # top right corner
 
         h.downto(0) do |i|
-            print "╎"
+            print "\u254E".encode('utf-8') # vertical line
             0.upto(w) do |j|
                 print " "
                 if x == j and y == i
                     case f
-                        when :north
-                            print "▲"
-                        when :south
-                            print "▼"
-                        when :east
-                            print "▶"
-                        when :west
-                            print "◀"
+                    when :north
+                        print "\u25B2".encode('utf-8') # up arrow
+                    when :south
+                        print "\u25BC".encode('utf-8') # down arrow
+                    when :east
+                        print "\u25B6".encode('utf-8') # right arrow
+                    when :west
+                        print "\u25C0".encode('utf-8') # left arrow
                     end
                 else
                     print " "
                 end                
             end
-            print " ╎"
-            puts 
+            puts " \u254E".encode('utf-8') # vertical line
         end
-        print '└'
-        (w*2+3).times { print '─'  }
-        puts '┘'
+        print "\u2514".encode('utf-8') # bottom left corner
+        (w*2+3).times { print "\u2500".encode('utf-8')  } # horizontal line
+        puts "\u2518".encode('utf-8') # bottom right corner
         printf("%c\n", 15)
     end
 
@@ -131,87 +126,51 @@ class ToyRobotDemo
             
             # Match the first word against our valid commands
             case first_arg
-                when "place"
-                    # Attempt to extract the arguments (x,y,f)
-                    parser = command.match(/place\s*(.*)/)
+            when "place"
+                # Attempt to extract the arguments (x,y,f)
+                parser = command.match(/place\s*(.*)/)
 
-                    # Split arguments by the comma and strip away whitespace
-                    args = parser[1].split(',').map { |e| e.strip }
-                    if args.length == 3
-                        x = args[0]
-                        y = args[1]
-                        f = args[2]
-                        
-                        @robot.place(x,y,f)
-                    else
-                        puts "Wrong number of arguments! Format: PLACE X,Y,F where X,Y are numbers and F is the direction the robot is facing."
-                    end
-                when "report", "move", "left", "right"
-                    # Ensure that the full command was just that single word
-                    if first_arg == command
-                        @robot.send first_arg
-                    else
-                        puts "Hmm.. '#{original_command}' doesn't look like a valid command!"
-                    end
-                when "help", "h"
-                    menu
-                when "gfx"
-                    case original_command
-                        when "gfx on"
-                            @gfx = true
-                        when "gfx off"
-                            @gfx = false
-                        else
-                            puts "Hmm.. '#{original_command}' doesn't look like a valid command!"
-                    end
-                when "quit", "q"
-                    # Ensure that the full command was just that single word, 
-                    # otherwise commands like 'quit now' or 'quit 123!' would be valid
-                    if first_arg == command
-                        puts "Terminating toy robot demo!"
-                    else
-                        puts "Hmm.. '#{original_command}' doesn't look like a valid command!"
-                    end
+                # Split arguments by the comma and strip away whitespace
+                args = parser[1].split(',').map { |e| e.strip }
+                if args.length == 3
+                    x = args[0]
+                    y = args[1]
+                    f = args[2]
+                    
+                    @robot.place(x,y,f)
+                else
+                    puts "Wrong number of arguments! Format: PLACE X,Y,F where X,Y are numbers and F is the direction the robot is facing."
+                end
+            when "report", "move", "left", "right"
+                # Ensure that the full command was just that single word
+                if first_arg == command
+                    @robot.send first_arg
                 else
                     puts "Hmm.. '#{original_command}' doesn't look like a valid command!"
+                end
+            when "help", "h"
+                menu
+            when "gfx"
+                case original_command
+                    when "gfx on"
+                        @gfx = true
+                    when "gfx off"
+                        @gfx = false
+                    else
+                        puts "Hmm.. '#{original_command}' doesn't look like a valid command!"
+                end
+            when "quit", "q"
+                # Ensure that the full command was just that single word, 
+                # otherwise commands like 'quit now' or 'quit 123!' would be valid
+                if first_arg == command
+                    puts "Terminating toy robot demo!"
+                else
+                    puts "Hmm.. '#{original_command}' doesn't look like a valid command!"
+                end
+            else
+                puts "Hmm.. '#{original_command}' doesn't look like a valid command!"
             end unless command.empty? # case first_arg
         end # while
     end # def start
 
 end # class
-
-if __FILE__ == $0
-    require 'optparse'
-
-    options = {:width => nil, :height => nil, :file => nil, :gfx => nil}
-
-    parser = OptionParser.new do|opts|
-        opts.banner = "Usage: ruby toy_robot_demo.rb [options]"
-        opts.on('-w', '--width width', 'Table width') do |width|
-            options[:width] = width;
-        end
-
-        opts.on('-h', '--height height', 'Table height') do |height|
-            options[:height] = height;
-        end
-
-
-        opts.on('-f', '--file filename', 'File with instructions - 1 per line') do |file|
-            options[:file] = file;
-        end
-
-        opts.on('-g', '--graphics', 'Enable graphical robot navigation mode') do |gfx|
-            options[:gfx] = gfx;
-        end
-
-        opts.on('', '--help', 'Displays Help') do
-            puts opts
-            exit
-        end
-    end
-
-    parser.parse!
-
-    demo = ToyRobotDemo.new(options[:width], options[:height], options[:file], options[:gfx])
-    demo.start
-end
