@@ -5,7 +5,7 @@ The application is a simulation of a toy robot moving on a square tabletop, of d
 Requirements
 ----
 
-toy-robot-simulator was developed using Ruby 1.9.3, but it has also been tested on Ruby 2.0.0.
+toy-robot-simulator was developed using Ruby 2.0.0, but it has also been tested on Ruby 1.9.3.
 
 Usage
 ----
@@ -56,4 +56,4 @@ Constraints
 Tests
 ----
   * Rspec tests are available under rspec/
-  * Test input files are available unde data/
+  * Test input files are available unde data/ (e.g. _bin/toy_robot_simulator **-f data/t1_data.txt**_)
