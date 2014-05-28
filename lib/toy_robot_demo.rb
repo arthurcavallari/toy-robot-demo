@@ -11,22 +11,117 @@ class ToyRobotDemo
 
     attr_reader :robot, :table
 
-    def initialize(width = nil, height = nil, file = nil, gfx = nil)
-      @gfx = gfx
+    def initialize(width=nil, height=nil, file=nil, gfx=nil)
+      # Sanitize input
       width = to_numeric!(width)
       height = to_numeric!(height)
-
+      
+      # Initialize vars
+      @gfx = gfx
       @commands = []
+
+      load_commands_from_file(file)
+
+      puts "Welcome to Toy Robot Simulator, where fun begins."
+      
+      setup_table(width, height)      
+      @robot = ToyRobot.new(nil, nil, nil, @table)
+
+      puts "It seems for today's demo we're using a table of dimensions #{@table.width}x#{@table.height}."
+      puts "Please stay clear of out of bounds values for your robot's safety, as they have feelings too."
+    end
+
+    def menu
+      puts "\nCommands available:"
+      puts "\t- %-14s: %s" % [ "PLACE X,Y,F", "Places robot at position X,Y facing direction F"   ]
+      puts "\t- %-14s: %s" % [ "MOVE",        "Moves robot 1 unit in the direction it's facing"   ]
+      puts "\t- %-14s: %s" % [ "LEFT",        "Rotates the robot 90 degrees anti-clockwise"       ]
+      puts "\t- %-14s: %s" % [ "RIGHT",       "Rotates the robot 90 degrees clockwise"            ]
+      puts "\t- %-14s: %s" % [ "REPORT",      "Announces robot's position"                        ]
+      puts "\t- %-14s: %s" % [ "GFX ON/OFF",  "Turns graphics on or off"                          ]
+      puts "\t- %-14s: %s" % [ "HELP",        "Shows this menu - shortcut: h"                     ]
+      puts "\t- %-14s: %s" % [ "QUIT",        "Terminates this toy robot demo - shortcut: q"      ]
+    end
+
+    def start
+      # Display command list
+      menu
+
+      command = nil
+      original_command = nil
+
+      while command != 'q' and command != 'quit'
+        draw_game if @gfx
+
+        print "Enter command >> "
+
+        original_command = get_command
+
+        command = original_command.downcase
+        first_arg = command[/\w*/, 0]
+        
+        # Match the first word against our valid commands
+        case first_arg
+        when "place"
+          # Attempt to extract the arguments (x,y,f)
+          parser = command.match(/place\s*(.*)/)
+
+          # Split arguments by the comma and strip away whitespace
+          args = parser[1].split(',').map { |e| e.strip }
+          if args.length == 3
+            x = args[0]
+            y = args[1]
+            f = args[2]
+            
+            @robot.update_coordinates(x,y,f)
+          else
+            puts "Wrong number of arguments! Format: PLACE X,Y,F where X,Y are numbers and F is the direction the robot is facing."
+          end
+        when "report", "move", "left", "right"
+          # Ensure that the full command was just that single word
+          if first_arg == command
+            @robot.send first_arg
+          else
+            puts "Hmm.. '#{original_command}' doesn't look like a valid command!"
+          end
+        when "help", "h"
+          menu
+        when "gfx"
+          case original_command
+          when "gfx on"
+            @gfx = true
+          when "gfx off"
+            @gfx = false
+          else
+            puts "Hmm.. '#{original_command}' doesn't look like a valid command!"
+          end
+        when "quit", "q"
+          # Ensure that the full command was just that single word, 
+          # otherwise commands like 'quit now' or 'quit 123!' would be valid
+          if first_arg == command
+            puts "Terminating toy robot demo!"
+          else
+            puts "Hmm.. '#{original_command}' doesn't look like a valid command!"
+          end
+        else
+          puts "Hmm.. '#{original_command}' doesn't look like a valid command!"
+        end unless command.empty? # case first_arg
+      end # while
+    end # start
+
+    private
+
+    def load_commands_from_file(file)
       if !file.nil? and File.file?(file)
         @commands = File.readlines(file).map { |l| l.chomp } 
         puts "Loaded #{@commands.length} commands from file '#{file}'."
       elsif !file.nil? and !File.file?(file)
         puts "ERROR: '#{file}' is not a valid file."
       end
-      
-      puts "Welcome to Toy Robot Simulator, where fun begins."
+    end # load_commands_from_file
 
-      while(width.nil? or height.nil? or !numeric?(width) or !numeric?(height) or width < 1 or height < 1)
+    def setup_table(width, height)
+      while(!numeric?(width) or !numeric?(height) or width < 1 or height < 1)
         print "Enter table width,height [default: 5,5] >> "
         dimensions = $stdin.gets.strip
 
@@ -46,23 +141,7 @@ class ToyRobotDemo
       end
 
       @table = Table.new(width, height)
-      @robot = ToyRobot.new(nil, nil, nil, @table)
-
-      puts "It seems for today's demo we're using a table of dimensions #{@table.width}x#{@table.height}."
-      puts "Please stay clear of out of bounds values for your robot's safety, as they have feelings too."
-    end
-
-    def menu
-      puts "\nCommands available:"
-      puts "\t- %-14s: %s" % [ "PLACE X,Y,F", "Places robot at position X,Y facing direction F"   ]
-      puts "\t- %-14s: %s" % [ "MOVE",        "Moves robot 1 unit in the direction it's facing"   ]
-      puts "\t- %-14s: %s" % [ "LEFT",        "Rotates the robot 90 degrees anti-clockwise"       ]
-      puts "\t- %-14s: %s" % [ "RIGHT",       "Rotates the robot 90 degrees clockwise"            ]
-      puts "\t- %-14s: %s" % [ "REPORT",      "Announces robot's position"                        ]
-      puts "\t- %-14s: %s" % [ "GFX ON/OFF",  "Turns graphics on or off"                          ]
-      puts "\t- %-14s: %s" % [ "HELP",        "Shows this menu - shortcut: h"                     ]
-      puts "\t- %-14s: %s" % [ "QUIT",        "Terminates this toy robot demo - shortcut: q"      ]
-    end
+    end # setup_table
 
     def draw_game
       w = @table.width - 1
@@ -101,74 +180,16 @@ class ToyRobotDemo
       (w*2+3).times { print "\u2500".encode('utf-8')  } # horizontal line
       puts "\u2518".encode('utf-8') # bottom right corner
       printf("%c\n", 15)
-    end
+    end # draw_game
+    
+    def get_command
+      if @commands.length > 0
+        cmd = @commands.shift
+        puts original_command
+      else
+        cmd = $stdin.gets.strip
+      end
+      return cmd
+    end # get_command
 
-    def start
-      # Display command list
-      menu
-
-      command = nil
-      original_command = nil
-
-      while command != 'q' and command != 'quit'
-          draw_game if @gfx
-          print "Enter command >> "
-          if @commands.length > 0
-            original_command = @commands.shift
-            puts original_command
-          else
-            original_command = $stdin.gets.strip
-          end
-          
-          command = original_command.downcase
-          first_arg = command[/\w*/, 0]
-          
-          # Match the first word against our valid commands
-          case first_arg
-          when "place"
-            # Attempt to extract the arguments (x,y,f)
-            parser = command.match(/place\s*(.*)/)
-
-            # Split arguments by the comma and strip away whitespace
-            args = parser[1].split(',').map { |e| e.strip }
-            if args.length == 3
-              x = args[0]
-              y = args[1]
-              f = args[2]
-              
-              @robot.update_coordinates(x,y,f)
-            else
-              puts "Wrong number of arguments! Format: PLACE X,Y,F where X,Y are numbers and F is the direction the robot is facing."
-            end
-          when "report", "move", "left", "right"
-            # Ensure that the full command was just that single word
-            if first_arg == command
-              @robot.send first_arg
-            else
-              puts "Hmm.. '#{original_command}' doesn't look like a valid command!"
-            end
-          when "help", "h"
-            menu
-          when "gfx"
-            case original_command
-            when "gfx on"
-              @gfx = true
-            when "gfx off"
-              @gfx = false
-            else
-              puts "Hmm.. '#{original_command}' doesn't look like a valid command!"
-            end
-          when "quit", "q"
-            # Ensure that the full command was just that single word, 
-            # otherwise commands like 'quit now' or 'quit 123!' would be valid
-            if first_arg == command
-              puts "Terminating toy robot demo!"
-            else
-              puts "Hmm.. '#{original_command}' doesn't look like a valid command!"
-            end
-          else
-            puts "Hmm.. '#{original_command}' doesn't look like a valid command!"
-          end unless command.empty? # case first_arg
-      end # while
-    end # def start
 end # class
