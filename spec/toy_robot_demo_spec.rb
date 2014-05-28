@@ -24,6 +24,12 @@ describe ToyRobotDemo do
             @demo.table.should be_an_instance_of Table
         end
 
+        it "converts width/height to Integers if possible" do
+            @demo = ToyRobotDemo.new("6", "6")
+            @demo.table.width.should eq 6
+            @demo.table.height.should eq 6
+        end
+
         it "prompts the user for a width and height if none or invalid parameters were given" do
             InputFaker.with_fake_input(["5,5"]) do
                 @demo = ToyRobotDemo.new
