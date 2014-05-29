@@ -55,5 +55,5 @@ Constraints
 
 Tests
 ----
-  * Rspec tests are available under rspec/
+  * Rspec tests are available under spec/
   * Test input files are available under data/ (e.g. _bin/toy_robot_simulator **-f data/t1_data.txt**_)
