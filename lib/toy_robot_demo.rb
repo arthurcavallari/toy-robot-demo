@@ -24,7 +24,7 @@ class ToyRobotDemo
 
       puts "Welcome to Toy Robot Simulator, where fun begins."
       
-      setup_table(width, height)      
+      @table = setup_table(width, height)      
       @robot = ToyRobot.new(nil, nil, nil, @table)
 
       puts "It seems for today's demo we're using a table of dimensions #{@table.width}x#{@table.height}."
@@ -140,7 +140,7 @@ class ToyRobotDemo
         end
       end
 
-      @table = Table.new(width, height)
+      Table.new(width, height)
     end # setup_table
 
     def draw_game
