@@ -19,16 +19,9 @@ class ToyRobot
     @table = table
   end
 
-  def update_coordinates(x,y,f)
-    # Validate input and append error messages to 'err' variable
-    validate_pos_x = numeric?(x) && x.to_i >= 0 && x.to_i <= @table.width  - 1
-    validate_pos_y = numeric?(y) && y.to_i >= 0 && y.to_i <= @table.height - 1
-    validate_direction = DIRECTIONS.include?(f.to_sym)
 
-    err = ""
-    err << "Invalid X, must be a number between 0 - #{@table.width - 1}\n"  unless validate_pos_x
-    err << "Invalid Y, must be a number between 0 - #{@table.height - 1}\n" unless validate_pos_y
-    err << "Invalid F, must be either NORTH, SOUTH, EAST or WEST\n" unless validate_direction
+  def update_coordinates(x, y, f)
+    err = validate_coordinates(x, y, f)
     
     # If nothing was appended to the 'err' variable, we should be good to go!
     if err.empty?
@@ -118,5 +111,19 @@ class ToyRobot
     end
 
     @direction = DIRECTIONS[new_index]
+  end
+
+  def validate_coordinates(x, y, f)
+    # Validate input and append error messages to 'err' variable
+    validate_pos_x = numeric?(x) && x.to_i >= 0 && x.to_i <= @table.width  - 1
+    validate_pos_y = numeric?(y) && y.to_i >= 0 && y.to_i <= @table.height - 1
+    validate_direction = DIRECTIONS.include?(f.to_sym)
+
+    err = ""
+    err << "Invalid X, must be a number between 0 - #{@table.width - 1}\n"  unless validate_pos_x
+    err << "Invalid Y, must be a number between 0 - #{@table.height - 1}\n" unless validate_pos_y
+    err << "Invalid F, must be either NORTH, SOUTH, EAST or WEST\n" unless validate_direction
+
+    err
   end
 end
